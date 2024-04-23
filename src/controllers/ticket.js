@@ -24,37 +24,6 @@ const ADD_TICKET = async (req, res) => {
   }
 };
 
-// const BUY_TICKET = async (req, res) => {
-//   try {
-//     const user = req.user;
-//     const ticketId = req.body.ticketId;
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const ticket = await ticketSchema.findById(ticketId);
-//     if (!ticket) {
-//       return res.status(404).json({ message: "Ticket not found" });
-//     }
-
-//     const ticketPrice = ticket.ticket_price;
-
-//     if (parseInt(user.money_balance) < ticketPrice) {
-//       return res.status(400).json({ message: "Insufficient cash balance" });
-//     }
-//     user.bought_tickets.push(ticketId);
-
-//     user.money_balance -= ticketPrice;
-
-//     await user.save();
-
-//     return res.status(200).json({ message: "Ticket succesfully bought" });
-//   } catch (err) {
-//     console.log("Handled error:", err);
-//     return res.status(500).json({ message: "Internal server error" });
-//   }
-// };
 const GET_TICKET_BY_ID = async (req, res) => {
   try {
     const ticket = await ticketSchema.findOne({
@@ -75,38 +44,54 @@ const GET_TICKET_BY_ID = async (req, res) => {
 };
 
 const BUY_TICKET = async (req, res) => {
-  console.log("Request body:", req.body);
-
-  const { ticketId } = req.body;
-
-  console.log("User ID from token:", req.userId);
-
   try {
-    const user = await User.findById(req.userId);
+    console.log("Request body:", req.body);
+    console.log("User ID from token:", req.userId);
+
+    const { ticketId } = req.body;
+    console.log("Ticket ID from request body:", ticketId);
+    const userId = req.userId;
+
+    console.log("User ID for querying:", userId);
+
+    const user = await User.findOne({ userId: userId });
+    console.log("User found:", user);
+
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
-    const ticket = await ticketSchema.findById(ticketId);
+    const ticket = await ticketSchema.findOne({ ticketId: ticketId });
+    console.log("Found ticket:", ticket);
+
     if (!ticket) {
+      console.log("Ticket not found");
       return res.status(404).json({ message: "Ticket not found" });
     }
 
-    const ticketPrice = ticket.ticket_price;
-    if (parseInt(user.money_balance, 10) < ticketPrice) {
+    if (user.money_balance < ticket.ticket_price) {
+      console.log("Insufficient cash balance");
       return res.status(400).json({ message: "Insufficient cash balance" });
     }
 
-    user.bought_tickets.push(ticketId);
-    user.money_balance -= ticketPrice;
+    user.money_balance -= ticket.ticket_price;
+    user.bought_tickets.push({
+      title: ticket.title,
+      ticket_price: ticket.ticket_price,
+      from_location: ticket.from_location,
+      to_location: ticket.to_location,
+      to_location_photo_url: ticket.to_location_photo_url
+    });
 
     await user.save();
-    return res.status(200).json({ message: "Ticket successfully bought" });
+
+    console.log("Ticket purchased successfully");
+    return res.status(200).json({ message: "Ticket purchased successfully", ticket: ticket });
   } catch (error) {
-    console.error("Error:", error);
+    console.log("Error:", error);
     return res.status(500).json({
-      message:
-        "Internal server error occurred while processing the ticket purchase",
+      message: "Internal server error occurred while processing the ticket purchase",
     });
   }
 };

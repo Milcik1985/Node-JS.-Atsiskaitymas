@@ -8,7 +8,8 @@ const SIGN_UP = async (req, res) => {
     console.log(req.body);
 
     const { email, password } = req.body;
-    const userName = req.body.userName.toLowerCase();
+    const userName = req.body.userName.charAt(0).toUpperCase() + req.body.userName.slice(1);
+
 
     if (!email.includes("@")) {
       return res
@@ -27,7 +28,7 @@ const SIGN_UP = async (req, res) => {
 
     const userData = {
       userId: uuidv4(),
-      userName: req.body.userName,
+      userName: userName,
       email: email,
       password: hash,
       bought_tickets: [],
@@ -63,7 +64,7 @@ const LOG_IN = async (req, res) => {
     }
 
     const jwt_token = jwt.sign(
-      { userId: user._id, userName: user.userName, email: user.email },
+      { userId: user.userId, userName: user.userName, email: user.email },
       process.env.JWT_SECRET,
       {
         expiresIn: "2h",
@@ -71,7 +72,7 @@ const LOG_IN = async (req, res) => {
     );
 
     const jwt_refresh_token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user.userId, email: user.email },
       process.env.JWT_REFRESH_SECRET,
       {
         expiresIn: "1d",
@@ -139,7 +140,7 @@ const GET_USER_BY_ID = async (req, res) => {
 
     return res.status(200).json({ user: user });
   } catch (err) {
-    return res.status(404).json({ message: "There is no user with such id" });
+    return res.status(404).json({ message: "There is no user with such id", err });
   }
 };
 

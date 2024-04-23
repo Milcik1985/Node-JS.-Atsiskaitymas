@@ -16,10 +16,8 @@ router.post(
   validData(ticketValidationSchema),
   ADD_TICKET
 );
-router.post("/tickets/buy", authUser, BUY_TICKET); /*neveikia*/
+router.post("/tickets/buy", authUser, BUY_TICKET);
 
 router.get("/tickets/:ticketId", authUser, GET_TICKET_BY_ID);
-
-
 
 export default router;

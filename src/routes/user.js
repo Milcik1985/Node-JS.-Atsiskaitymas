@@ -12,13 +12,13 @@ const userRouter = express.Router();
 
 userRouter.post("/users", SIGN_UP);
 userRouter.post("/users/login", LOG_IN);
-userRouter.post("/getNewJwtToken", GET_NEW_JWT_TOKEN); /*neveikia*/
+userRouter.post("/getNewJwtToken", authUser, GET_NEW_JWT_TOKEN); 
 userRouter.get("/users/all", authUser, GET_ALL_USERS);
 userRouter.get("/users/:userId", authUser, GET_USER_BY_ID);
 userRouter.get(
-  "/uses/:userId/bought_tickets",
+  "/users/:userId/bought_tickets",
   authUser,
   GET_USERS_BY_ID_WITH_TICKETS
-); /*neveikia*/
+);
 
 export default userRouter;
