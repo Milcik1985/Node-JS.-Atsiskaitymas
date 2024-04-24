@@ -10,7 +10,6 @@ const SIGN_UP = async (req, res) => {
     const { email, password } = req.body;
     const userName = req.body.userName.charAt(0).toUpperCase() + req.body.userName.slice(1);
 
-
     if (!email.includes("@")) {
       return res
         .status(400)
